@@ -213,14 +213,14 @@ export default {
             if (dm.quantity > 1) {
                 var index = this.dms.indexOf(dm);
                 this.dms[index].quantity = dm.quantity - 1;
-                onsole.log(this.dms[index].quantity);
+                //console.log(this.dms[index].quantity);
             }
         },
         plusQuantity(dm)
         {
             var index = this.dms.indexOf(dm);
            this.dms[index].quantity = dm.quantity + 1;
-           console.log(this.dms[index].quantity);
+           //console.log(this.dms[index].quantity);
         },
         showModal(key)
         {
