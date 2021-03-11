@@ -1,9 +1,26 @@
 <template >
         <default-field  :field="field" :errors="errors" class="test">
+        <modal v-if="showconfirmation">
+        <form @submit.prevent="" class="bg-white rounded-lg shadow-lg overflow-hidden" style="width: 460px;"><div class="p-8"><h2 class="mb-6 text-90 font-normal text-xl">Delete Item</h2> <p class="text-80 leading-normal">
+            Are you sure you want to delete this item?
+          </p></div> <div class="bg-30 px-6 py-3 flex"><div class="ml-auto">
+
+        <button type="button" data-testid="cancel-button" dusk="cancel-delete-button" class="btn text-80 font-normal h-9 px-3 mr-3 btn-link" @click="handleClose">
+          Cancel
+        </button>
+
+        <button id="confirm-delete-button" data-testid="confirm-button" @click="handleConfirm(selecteditem)" type="submit" class="btn btn-default btn-danger">
+          Delete
+        </button>
+
+        </div>
+        </div>
+        </form>
+        </modal>
         <template slot="field" class="w-full" style="width:100% !important;">
             <div class="">
                 <input
-                id="widthinput"
+                ref="widthinput"
                 type="number"
                 min="0"
                 step="0.01"
@@ -55,22 +72,33 @@
                 </thead>
                 <tbody>
                     <tr v-for="dm in dms" :key="dm.key">
-                        <td class="text-center"><p style="font-weight: bold;">x {{ dm.quantity }}</p></td>
+                        <td class="text-center">
+                            <div class="inline-block">
+                            <button  :disabled="dm.quantity == 1" type="button" class="inline-block btn btn-danger mr-2 px-2 pb-1 items-center rounded-full focus:outline-none" @click="minusQuantity(dm)">-</button>
+                             <div class="text-center inline-block" style="width:40px;">
+                                 <b style="font-weight: bold; ">{{dm.quantity}}</b>
+                             </div>
+                             <button type="button" class="inline-block btn btn-danger ml-2 px-2 pb-1 rounded-full items-center focus:outline-none" style="background-color: green;" @click="plusQuantity(dm)">+</button>
+                            </div>
+                        </td>
                         <td class="text-center">{{ dm.width }}</td>
                         <td class="text-center">{{ dm.height }}</td>
                         <td class="text-center">{{ dm.length }}</td>
                         <td class="text-center">{{ dm.weight }}</td>
                         <td>
-                                <button type="button" class="btn btn-default items-center" style="    background: none; border: none; box-shadow: none;"  @click="deleteItem(dm.key)">
+                                <button type="button" class="btn btn-default items-center" style="    background: none; border: none; box-shadow: none;"  @click="showModal(dm.key)">
                                     <svg xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 20 20" class="sidebar-icon" style="vertical-align: sub;margin:0 !important;"><path fill="red" d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"></path></svg>
                                 </button>
                         </td>
                     </tr>
                 </tbody>
             </table>
-</div>
 
 
+
+
+
+        </div>
         </template>
     </default-field>
 
@@ -80,9 +108,9 @@
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
 import { v4 as uuidv4 } from 'uuid';
 
-
 export default {
     mixins: [FormField, HandlesValidationErrors],
+
 
     props: ['resourceName', 'resourceId', 'field'],
 
@@ -94,6 +122,8 @@ export default {
             weight: '',
             error:false,
             dms:[],
+            showconfirmation:false,
+            selecteditem:null,
         }
     },
 
@@ -110,10 +140,6 @@ export default {
             // console.log(this.field.value);
             this.$children[0].$el.lastElementChild.className = "py-6 px-8 w-full";
         },
-
-        /**
-         * Fill the given FormData object with the field's internal value.
-         */
         fill(formData) {
             //console.log("fill is called");
             if(Array.isArray(this.value)){
@@ -133,8 +159,8 @@ export default {
             // console.log('field value');
             // console.log(this.field.value);
         },
-
         addItem(){
+
             if (this.width == '' || this.height == '' || this.length == '' || this.weight == '') {
                 return this.error = true;
             }
@@ -159,30 +185,63 @@ export default {
             this.field.value = this.value;
             // console.log("DMS");
             // console.log(this.value);
-            //this.$refs.widthinput.focus();
+            this.$refs.widthinput.focus();
 
-            },
+        },
         deleteItem(key){
-            var dmItem = this.dms.find((dm) => {
-                return dm.key == key;
-            });
-            if(!dmItem)return;
-            var index = this.dms.indexOf(dmItem);
 
-            if(dmItem.quantity > 1){
-                dmItem.quantity --;
-                this.dms[index]=dmItem;
-            }else{
+            // var dmItem = this.dms.find((dm) => {
+            //     return dm.key == key;
+            // });
+            // if(!dmItem)return;
+            // var index = this.dms.indexOf(dmItem);
+
+            // if(dmItem.quantity > 1){
+            //     dmItem.quantity --;
+            //     this.dms[index]=dmItem;
+            // }else{
             this.dms = this.dms.filter((dm) => {
                 return dm.key !== key;
             });
-            }
+            //}
             // console.log("DMS");
             // console.log(this.dms);
             this.value = JSON.stringify(this.dms);
             this.field.value = this.value;
         },
-    },
+        minusQuantity(dm){
+            if (dm.quantity > 1) {
+                var index = this.dms.indexOf(dm);
+                this.dms[index].quantity = dm.quantity - 1;
+                onsole.log(this.dms[index].quantity);
+            }
+        },
+        plusQuantity(dm)
+        {
+            var index = this.dms.indexOf(dm);
+           this.dms[index].quantity = dm.quantity + 1;
+           console.log(this.dms[index].quantity);
+        },
+        showModal(key)
+        {
+            this.showconfirmation = true;
+            this.selecteditem = key;
+        },
+
+        handleConfirm(key) {
+            if (key) {
+            this.deleteItem(key);
+            this.showconfirmation = false;
+            this.selecteditem = null;
+            }
+        },
+        /**
+         * Close the modal.
+         */
+        handleClose() {
+            this.showconfirmation = false;
+        },
+    }
 
 }
 </script>
