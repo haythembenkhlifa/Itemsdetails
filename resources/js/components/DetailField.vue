@@ -18,10 +18,10 @@
                         <tbody>
                             <tr v-for="dm in this.field.value" :key="dm.key">
                                 <td class="text-center"><p style="font-weight: bold;">x {{ dm.quantity }}</p></td>
-                                <td class="text-center">{{ dm.width }}</td>
-                                <td class="text-center">{{ dm.height }}</td>
-                                <td class="text-center">{{ dm.length }}</td>
-                                <td class="text-center">{{ dm.weight }}</td>
+                                <td class="text-center">{{ Number(dm.width) }}</td>
+                                <td class="text-center">{{ Number(dm.height) }}</td>
+                                <td class="text-center">{{ Number(dm.length) }}</td>
+                                <td class="text-center">{{ Number(dm.weight) }}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -56,7 +56,11 @@
                 <svg xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 20 20" class="sidebar-icon" style="vertical-align: sub;margin:0 !important;"><path fill="green" d="M15 9h-3v2h3v3h2v-3h3V9h-3V6h-2v3zM0 3h10v2H0V3zm0 8h10v2H0v-2zm0-4h10v2H0V7zm0 8h10v2H0v-2z"></path></svg>
             </button>
             <br>
-            <p  v-if="error" class="mt-3" style="color:red;">All fields are required. </p>
+            <ul  v-if="error" class="mt-3" style="color:red;" >
+                <li v-for="error_message in dms_errors" :key="error_message">
+                    {{error_message}}
+                </li>
+            </ul>
 
 
             <table class="table w-full" style="margin-top:20px;margin-bottom:20px;">
@@ -81,10 +85,10 @@
                              <button type="button" class="inline-block btn btn-danger ml-2 px-2 pb-1 rounded-full items-center focus:outline-none" style="background-color: green;" @click="plusQuantity(dm)">+</button>
                             </div>
                         </td>
-                        <td class="text-center">{{ dm.width }}</td>
-                        <td class="text-center">{{ dm.height }}</td>
-                        <td class="text-center">{{ dm.length }}</td>
-                        <td class="text-center">{{ dm.weight }}</td>
+                        <td class="text-center">{{ Number(dm.width) }}</td>
+                        <td class="text-center">{{ Number(dm.height) }}</td>
+                        <td class="text-center">{{ Number(dm.length) }}</td>
+                        <td class="text-center">{{ Number(dm.weight) }}</td>
                         <td>
                                 <button type="button" class="btn btn-default items-center" style="    background: none; border: none; box-shadow: none;"  @click="showModal(dm.key)">
                                     <svg xmlns="http://www.w3.org/2000/svg"   viewBox="0 0 20 20" class="sidebar-icon" style="vertical-align: sub;margin:0 !important;"><path fill="red" d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"></path></svg>
@@ -121,6 +125,7 @@ export default {
             length : '',
             weight: '',
             error:false,
+            dms_errors:[],
             dms:[],
             showconfirmation:false,
             selecteditem:null,
@@ -141,7 +146,7 @@ export default {
             this.$children[0].$el.lastElementChild.className = "py-6 px-8 w-full";
         },
         fill(formData) {
-            //console.log("fill is called");
+            this.value = JSON.stringify(this.dms);
             if(Array.isArray(this.value)){
                 formData.append(this.field.attribute, JSON.stringify(this.value)|| [])
             }else{
@@ -160,9 +165,26 @@ export default {
             // console.log(this.field.value);
         },
         addItem(){
-
+            this.dms_errors=[];
             if (this.width == '' || this.height == '' || this.length == '' || this.weight == '') {
+                this.dms_errors.push("All fields are required.");
                 return this.error = true;
+            }
+            if (Number(this.width) <= 0) {
+                this.dms_errors.push("Width must be more than 0.");
+            }
+            if (Number(this.height) <= 0) {
+                this.dms_errors.push("Height must be more than 0.");
+            }
+            if (Number(this.length) <= 0) {
+                this.dms_errors.push("Length must be more than 0.");
+            }
+            if (Number(this.weight) <= 0) {
+                this.dms_errors.push("Weight must be more than 0.");
+            }
+            if (this.dms_errors.length>0) {
+                this.error = true;
+                return;
             }
 
             this.error = false;
@@ -174,7 +196,7 @@ export default {
                 dms.quantity = qt;
 
             }else{
-            this.dms.push({quantity : 1,width: this.width,height: this.height,length:this.length,weight:this.weight,key:uuidv4()});
+            this.dms.push({quantity : 1,width: String(Number(this.width)),height: String(Number(this.height)),length:String(Number(this.length)),weight:String(Number(this.weight)),key:uuidv4()});
             }
             this.width ='';
             this.height='';
@@ -213,6 +235,7 @@ export default {
             if (dm.quantity > 1) {
                 var index = this.dms.indexOf(dm);
                 this.dms[index].quantity = dm.quantity - 1;
+                this.value = JSON.stringify(this.dms);
                 //console.log(this.dms[index].quantity);
             }
         },
@@ -220,7 +243,7 @@ export default {
         {
             var index = this.dms.indexOf(dm);
            this.dms[index].quantity = dm.quantity + 1;
-           //console.log(this.dms[index].quantity);
+            //console.log(this.dms[index].quantity);
         },
         showModal(key)
         {

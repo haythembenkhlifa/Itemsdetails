@@ -603,19 +603,19 @@ var render = function() {
               ]),
               _vm._v(" "),
               _c("td", { staticClass: "text-center" }, [
-                _vm._v(_vm._s(dm.width))
+                _vm._v(_vm._s(Number(dm.width)))
               ]),
               _vm._v(" "),
               _c("td", { staticClass: "text-center" }, [
-                _vm._v(_vm._s(dm.height))
+                _vm._v(_vm._s(Number(dm.height)))
               ]),
               _vm._v(" "),
               _c("td", { staticClass: "text-center" }, [
-                _vm._v(_vm._s(dm.length))
+                _vm._v(_vm._s(Number(dm.length)))
               ]),
               _vm._v(" "),
               _c("td", { staticClass: "text-center" }, [
-                _vm._v(_vm._s(dm.weight))
+                _vm._v(_vm._s(Number(dm.weight)))
               ])
             ])
           }),
@@ -816,6 +816,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -832,6 +836,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             length: '',
             weight: '',
             error: false,
+            dms_errors: [],
             dms: [],
             showconfirmation: false,
             selecteditem: null
@@ -853,7 +858,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$children[0].$el.lastElementChild.className = "py-6 px-8 w-full";
         },
         fill: function fill(formData) {
-            //console.log("fill is called");
+            this.value = JSON.stringify(this.dms);
             if (Array.isArray(this.value)) {
                 formData.append(this.field.attribute, JSON.stringify(this.value) || []);
             } else {
@@ -874,8 +879,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         addItem: function addItem() {
             var _this = this;
 
+            this.dms_errors = [];
             if (this.width == '' || this.height == '' || this.length == '' || this.weight == '') {
+                this.dms_errors.push("All fields are required.");
                 return this.error = true;
+            }
+            if (Number(this.width) <= 0) {
+                this.dms_errors.push("Width must be more than 0.");
+            }
+            if (Number(this.height) <= 0) {
+                this.dms_errors.push("Height must be more than 0.");
+            }
+            if (Number(this.length) <= 0) {
+                this.dms_errors.push("Length must be more than 0.");
+            }
+            if (Number(this.weight) <= 0) {
+                this.dms_errors.push("Weight must be more than 0.");
+            }
+            if (this.dms_errors.length > 0) {
+                this.error = true;
+                return;
             }
 
             this.error = false;
@@ -886,7 +909,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 var qt = dms[0].quantity++;
                 dms.quantity = qt;
             } else {
-                this.dms.push({ quantity: 1, width: this.width, height: this.height, length: this.length, weight: this.weight, key: Object(__WEBPACK_IMPORTED_MODULE_1_uuid__["a" /* v4 */])() });
+                this.dms.push({ quantity: 1, width: String(Number(this.width)), height: String(Number(this.height)), length: String(Number(this.length)), weight: String(Number(this.weight)), key: Object(__WEBPACK_IMPORTED_MODULE_1_uuid__["a" /* v4 */])() });
             }
             this.width = '';
             this.height = '';
@@ -924,6 +947,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (dm.quantity > 1) {
                 var index = this.dms.indexOf(dm);
                 this.dms[index].quantity = dm.quantity - 1;
+                this.value = JSON.stringify(this.dms);
                 //console.log(this.dms[index].quantity);
             }
         },
@@ -28013,9 +28037,18 @@ var render = function() {
             _vm._v(" "),
             _vm.error
               ? _c(
-                  "p",
+                  "ul",
                   { staticClass: "mt-3", staticStyle: { color: "red" } },
-                  [_vm._v("All fields are required. ")]
+                  _vm._l(_vm.dms_errors, function(error_message) {
+                    return _c("li", { key: error_message }, [
+                      _vm._v(
+                        "\n                " +
+                          _vm._s(error_message) +
+                          "\n            "
+                      )
+                    ])
+                  }),
+                  0
                 )
               : _vm._e(),
             _vm._v(" "),
@@ -28100,19 +28133,19 @@ var render = function() {
                       ]),
                       _vm._v(" "),
                       _c("td", { staticClass: "text-center" }, [
-                        _vm._v(_vm._s(dm.width))
+                        _vm._v(_vm._s(Number(dm.width)))
                       ]),
                       _vm._v(" "),
                       _c("td", { staticClass: "text-center" }, [
-                        _vm._v(_vm._s(dm.height))
+                        _vm._v(_vm._s(Number(dm.height)))
                       ]),
                       _vm._v(" "),
                       _c("td", { staticClass: "text-center" }, [
-                        _vm._v(_vm._s(dm.length))
+                        _vm._v(_vm._s(Number(dm.length)))
                       ]),
                       _vm._v(" "),
                       _c("td", { staticClass: "text-center" }, [
-                        _vm._v(_vm._s(dm.weight))
+                        _vm._v(_vm._s(Number(dm.weight)))
                       ]),
                       _vm._v(" "),
                       _c("td", [
